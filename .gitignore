@@ -1,0 +1,25 @@
+# Build & toolchain artifacts
+.build/
+build/
+.swiftpm/
+.DS_Store
+*.xcuserstate
+xcuserdata/
+__pycache__/
+*.pyc
+
+# Local-only dev logs, signing records & machine-specific validation dumps
+docs/validation/
+docs/LOG.md
+docs/NEXT_SESSION.md
+docs/SIGNING.md
+docs/TOUCHID_VALIDATION.md
+docs/MANUAL_ACCEPTANCE.md
+docs/DEVELOPMENT.md
+docs/M1_VALIDATION.md
+docs/M2_VALIDATION.md
+docs/WRITE002_VALIDATION.md
+docs/SECURITY_VALIDATION.md
+docs/PLAN.md
+docs/RESEARCH.md
+AGENTS.md
