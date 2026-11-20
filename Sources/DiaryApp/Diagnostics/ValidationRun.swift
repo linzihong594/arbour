@@ -16,6 +16,8 @@ enum ValidationRun {
             let defaults = UserDefaults.standard
             defaults.removeObject(forKey: BackupController.bookmarkDefaultsKey)
             defaults.removeObject(forKey: BackupController.autoBackupDefaultsKey)
+            defaults.removeObject(forKey: BackupController.dailyAutoBackupDefaultsKey)
+            defaults.removeObject(forKey: BackupController.backupOnQuitDefaultsKey)
             exit(EXIT_SUCCESS)
         }
         guard let output = configuration.validationOutput else { return }

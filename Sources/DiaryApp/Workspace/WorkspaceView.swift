@@ -130,6 +130,7 @@ struct WorkspaceView: View {
             BackupView(controller: backup)
         }
         .task {
+            (NSApplication.shared.delegate as? DiaryAppDelegate)?.backup = backup
             if !configuration.isValidation { await backup.load() }
         }
         .onChange(of: workspace.session?.autosave.status) { _, status in

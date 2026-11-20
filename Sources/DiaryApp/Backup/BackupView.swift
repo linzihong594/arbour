@@ -19,11 +19,21 @@ struct BackupView: View {
 
             GroupBox {
                 VStack(alignment: .leading, spacing: 10) {
-                    Label("备份目录", systemImage: "folder.badge.gearshape").font(.headline)
+                    Label("本地备份目录", systemImage: "folder.badge.gearshape").font(.headline)
                     if controller.hasDirectory, let name = controller.directoryName {
-                        Text("已授权：\(name)").font(.system(size: 12))
+                        HStack(spacing: 8) {
+                            Text("已授权：\(name)").font(.system(size: 12, weight: .medium))
+                            Spacer()
+                            if let latest = controller.latestSnapshot {
+                                Text(
+                                    "最近：\(latest.manifest.createdAt.formatted(date: .abbreviated, time: .shortened)) · \(formattedBytes(latest.manifest.totalBytes))"
+                                )
+                                .font(.system(size: 11))
+                                .foregroundStyle(.secondary)
+                            }
+                        }
                     } else {
-                        Text("尚未选择备份目录。可选择 iCloud Drive 中的目录或独立测试目录。")
+                        Text("尚未选择备份目录。可选择本机文件夹或外置硬盘目录，创建不可变快照。")
                             .font(.system(size: 12)).foregroundStyle(.secondary)
                     }
                     HStack {
@@ -34,14 +44,25 @@ struct BackupView: View {
                             Button("立即创建快照") { controller.createSnapshot() }
                                 .buttonStyle(.borderedProminent)
                                 .disabled(controller.isBusy)
-                            Button("刷新快照列表") { controller.refreshSnapshots() }
+                            Button {
+                                controller.openBackupDirectoryInFinder()
+                            } label: {
+                                Label("在 Finder 中打开", systemImage: "folder")
+                            }
+                            .disabled(controller.isBusy)
+                            Button("刷新") { controller.refreshSnapshots() }
                                 .disabled(controller.isBusy)
                         }
                     }
-                    Toggle("保存后自动创建快照", isOn: $controller.autoBackupEnabled)
-                        .disabled(controller.isValidation)
-                    if controller.autoBackupEnabled {
-                        Text("编辑器保存后等待约 20 秒再创建，避免频繁写入云盘。")
+                    Divider().padding(.vertical, 2)
+                    VStack(alignment: .leading, spacing: 6) {
+                        Toggle("保存后自动创建快照", isOn: $controller.autoBackupEnabled)
+                            .disabled(controller.isValidation)
+                        Toggle("每日自动创建一次本地快照", isOn: $controller.dailyAutoBackupEnabled)
+                            .disabled(controller.isValidation)
+                        Toggle("退出前自动备份本次改动", isOn: $controller.backupOnQuitEnabled)
+                            .disabled(controller.isValidation)
+                        Text("自动快照在保存静置 20 秒、距上次快照超过 24 小时或退出前存在新改动时静默执行，不阻塞写作。")
                             .font(.system(size: 11)).foregroundStyle(.secondary)
                     }
                 }.frame(maxWidth: .infinity, alignment: .leading).padding(10)
@@ -69,7 +90,7 @@ struct BackupView: View {
                 }.frame(maxWidth: .infinity, alignment: .leading).padding(10)
             }
 
-            Text("本地写入成功只代表文件已写入备份目录；iCloud 上传由系统异步完成，面板不会把本地写入显示为已上传。")
+            Text("本地目录备份默认将完整快照写入你授权的文件夹（含 Entries 与废纸篓，私密日记保持密文）；若选择 iCloud Drive 目录，云端上传由系统异步完成。")
                 .font(.system(size: 11)).foregroundStyle(.secondary)
         }
         .padding(28)

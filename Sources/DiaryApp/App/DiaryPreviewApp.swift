@@ -23,7 +23,7 @@ struct DiaryPreviewApp: App {
 
     var body: some Scene {
         Window(
-            configuration.isDemo ? "日记 · 示例库" : "日记 · 本地预览",
+            configuration.isDemo ? "栖木 · 示例库" : "栖木",
             id: configuration.isValidation ? "validation-workspace" : "workspace"
         ) {
             WorkspaceView(workspace: workspace, configuration: configuration)

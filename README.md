@@ -41,8 +41,8 @@
 
 Grab the prebuilt **Apple Silicon (`arm64`)** package from [**GitHub Releases**](https://github.com/linzihong594/arbour/releases/latest):
 
-- **`Arbour-0.5.0-macOS-arm64.dmg`** — Drag `栖木.app` into your `Applications` folder.
-- **`Arbour-0.5.0-macOS-arm64.zip`** — Unzip and launch directly.
+- **`Arbour-0.6.0-macOS-arm64.dmg`** — Drag `栖木.app` into your `Applications` folder.
+- **`Arbour-0.6.0-macOS-arm64.zip`** — Unzip and launch directly.
 
 > **First-Launch Note (Unsigned / Ad-hoc Build):**
 > This open-source release is **ad-hoc signed** and not notarized with a paid Apple Developer ID. On first launch, macOS Gatekeeper may warn that the app cannot be verified. To open it after inspecting or downloading:
@@ -74,6 +74,7 @@ Grab the prebuilt **Apple Silicon (`arm64`)** package from [**GitHub Releases**]
   - On-demand **Open-Meteo** daily weather snapshots for confirmed coordinates; network failures or timeouts never block writing, and past entries are never stamped with today's weather.
 - **Immutable Local Snapshot Backups & Isolated Restore**
   - Choose any local folder or external drive to write immutable snapshots containing `Entries/`, `Trash/`, per-file SHA-256 `manifest.json`, and a `COMPLETE` marker (retaining the latest 5 complete snapshots).
+  - Supports **post-save quiet auto-backup**, **daily auto-snapshot (24h)**, and **backup-on-quit** (only when entries changed, zero delay otherwise), plus one-click **Open in Finder** and latest snapshot timestamp/size summary.
   - Restores write only into an empty target directory after verifying every SHA-256 checksum, rejecting tampered, incomplete, or unexpected files without ever overwriting your live library.
 
 ---

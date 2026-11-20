@@ -1,3 +1,4 @@
+import AppKit
 import DiaryCore
 import DiaryPlatform
 import Foundation
@@ -39,6 +40,9 @@ enum BackupStatus: Equatable {
 final class BackupController {
     static let bookmarkDefaultsKey = "preview.backupDirectoryBookmark"
     static let autoBackupDefaultsKey = "preview.autoBackupEnabled"
+    static let dailyAutoBackupDefaultsKey = "preview.dailyAutoBackupEnabled"
+    static let backupOnQuitDefaultsKey = "preview.backupOnQuitEnabled"
+    private static let dailyIntervalSeconds: TimeInterval = 24 * 60 * 60
 
     private(set) var status: BackupStatus = .idle
     private(set) var snapshots: [BackupSnapshotSummary] = []
@@ -46,10 +50,21 @@ final class BackupController {
     private(set) var directoryName: String?
     private(set) var cloudState: BackupCloudState = .unknown
     private(set) var hasDirectory = false
+    private(set) var hasChangesSinceLastSnapshot = false
     let isValidation: Bool
+
+    var latestSnapshot: BackupSnapshotSummary? { snapshots.first }
 
     var autoBackupEnabled: Bool {
         didSet { defaults.set(autoBackupEnabled, forKey: Self.autoBackupDefaultsKey) }
+    }
+
+    var dailyAutoBackupEnabled: Bool {
+        didSet { defaults.set(dailyAutoBackupEnabled, forKey: Self.dailyAutoBackupDefaultsKey) }
+    }
+
+    var backupOnQuitEnabled: Bool {
+        didSet { defaults.set(backupOnQuitEnabled, forKey: Self.backupOnQuitDefaultsKey) }
     }
 
     private let libraryURL: URL
@@ -63,6 +78,10 @@ final class BackupController {
         self.defaults = defaults
         autoBackupEnabled =
             (defaults.object(forKey: Self.autoBackupDefaultsKey) as? Bool) ?? true
+        dailyAutoBackupEnabled =
+            (defaults.object(forKey: Self.dailyAutoBackupDefaultsKey) as? Bool) ?? true
+        backupOnQuitEnabled =
+            (defaults.object(forKey: Self.backupOnQuitDefaultsKey) as? Bool) ?? true
     }
 
     func load() async {
@@ -89,6 +108,9 @@ final class BackupController {
             }
             snapshots = loaded.2
             cloudState = loaded.3
+            if dailyAutoBackupEnabled, !isValidation, isDailySnapshotDue(now: .now) {
+                createSnapshot(automatically: true)
+            }
         } catch {
             hasDirectory = false
             status = .failed(message: error.localizedDescription, retryable: true)
@@ -124,6 +146,45 @@ final class BackupController {
     }
 
     func createSnapshot(automatically: Bool = false) {
+        Task {
+            await runSnapshot(automatically: automatically)
+        }
+    }
+
+    /// Runs a quiet local snapshot before quitting if enabled and entries changed since the last snapshot.
+    func performQuitBackupIfNeeded() async {
+        autoTask?.cancel()
+        autoTask = nil
+        guard backupOnQuitEnabled, hasDirectory, !isValidation, hasChangesSinceLastSnapshot, !isBusy
+        else { return }
+        await runSnapshot(automatically: true)
+    }
+
+    func openBackupDirectoryInFinder() {
+        guard let bookmark = defaults.data(forKey: Self.bookmarkDefaultsKey) else {
+            status = .failed(message: "备份目录授权已丢失，请重新选择。", retryable: false)
+            return
+        }
+        do {
+            let directory = try BackupDirectory(bookmark: bookmark).resolve()
+            guard !directory.isStale else {
+                hasDirectory = false
+                status = .failed(message: "备份目录授权已过期，请重新选择。", retryable: false)
+                return
+            }
+            let accessing = directory.url.startAccessingSecurityScopedResource()
+            defer { if accessing { directory.url.stopAccessingSecurityScopedResource() } }
+            let snapshotsRoot = BackupService.snapshotsRoot(for: directory.url)
+            let target =
+                FileManager.default.fileExists(atPath: snapshotsRoot.path)
+                ? snapshotsRoot : directory.url
+            NSWorkspace.shared.open(target)
+        } catch {
+            status = .failed(message: error.localizedDescription, retryable: true)
+        }
+    }
+
+    private func runSnapshot(automatically: Bool) async {
         guard hasDirectory else {
             status = .failed(message: "请先选择备份目录。", retryable: false)
             return
@@ -138,37 +199,41 @@ final class BackupController {
         status = .working(automatically ? "正在自动备份…" : "正在创建快照…")
         let libraryURL = libraryURL
         let version = Self.appVersion
-        Task {
-            do {
-                let created = try await Task.detached {
-                    let directory = try BackupDirectory(bookmark: bookmark).resolve()
-                    guard !directory.isStale else {
-                        throw BackupError.directoryUnavailable
-                    }
-                    let accessing = directory.url.startAccessingSecurityScopedResource()
-                    defer { if accessing { directory.url.stopAccessingSecurityScopedResource() } }
-                    let snapshot = try BackupService.createSnapshot(
-                        libraryURL: libraryURL, backupRoot: directory.url, appVersion: version)
-                    return (
-                        snapshot,
-                        BackupCloudInspector.state(
-                            of: BackupService.snapshotsRoot(for: directory.url)),
-                        BackupService.listSnapshots(in: directory.url)
-                    )
-                }.value
-                snapshots = created.2
-                cloudState = created.1
-                status = .localComplete(
-                    entryCount: created.0.manifest.entries.count,
-                    date: created.0.manifest.createdAt, cloud: created.1,
-                    snapshotURL: created.0.url)
-            } catch {
-                status = .failed(
-                    message: error.localizedDescription,
-                    retryable: (error as? BackupError)?.isRetryable ?? true)
-            }
-            isBusy = false
+        do {
+            let created = try await Task.detached {
+                let directory = try BackupDirectory(bookmark: bookmark).resolve()
+                guard !directory.isStale else {
+                    throw BackupError.directoryUnavailable
+                }
+                let accessing = directory.url.startAccessingSecurityScopedResource()
+                defer { if accessing { directory.url.stopAccessingSecurityScopedResource() } }
+                let snapshot = try BackupService.createSnapshot(
+                    libraryURL: libraryURL, backupRoot: directory.url, appVersion: version)
+                return (
+                    snapshot,
+                    BackupCloudInspector.state(
+                        of: BackupService.snapshotsRoot(for: directory.url)),
+                    BackupService.listSnapshots(in: directory.url)
+                )
+            }.value
+            snapshots = created.2
+            cloudState = created.1
+            hasChangesSinceLastSnapshot = false
+            status = .localComplete(
+                entryCount: created.0.manifest.entries.count,
+                date: created.0.manifest.createdAt, cloud: created.1,
+                snapshotURL: created.0.url)
+        } catch {
+            status = .failed(
+                message: error.localizedDescription,
+                retryable: (error as? BackupError)?.isRetryable ?? true)
         }
+        isBusy = false
+    }
+
+    private func isDailySnapshotDue(now: Date) -> Bool {
+        guard let latest = latestSnapshot else { return true }
+        return now.timeIntervalSince(latest.manifest.createdAt) >= Self.dailyIntervalSeconds
     }
 
     func restore(snapshot: BackupSnapshotSummary, to targetDirectory: URL) {
@@ -213,12 +278,13 @@ final class BackupController {
 
     /// Called after the editor reports a saved entry, so a quiet period produces one snapshot.
     func noteSaveCompleted() {
+        hasChangesSinceLastSnapshot = true
         guard autoBackupEnabled, hasDirectory, !isValidation else { return }
         autoTask?.cancel()
         autoTask = Task {
             try? await Task.sleep(for: .seconds(20))
             guard !Task.isCancelled else { return }
-            createSnapshot(automatically: true)
+            await runSnapshot(automatically: true)
         }
     }
 
