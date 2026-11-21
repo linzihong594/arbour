@@ -75,7 +75,7 @@ struct JournalReaderView: View {
                 HStack {
                     Text(failure).font(.system(size: 12)).foregroundStyle(.red)
                     Spacer()
-                    Button("重试保存") { Task { await workspace.flush() } }
+                    Button(L10n.tr("重试保存", "Retry Save")) { Task { await workspace.flush() } }
                         .buttonStyle(.bordered)
                         .controlSize(.small)
                 }
@@ -85,14 +85,19 @@ struct JournalReaderView: View {
             }
 
             if !workspace.loadIssues.isEmpty {
-                Text("有 \(workspace.loadIssues.count) 个文件未载入，原文件已保留。")
-                    .font(.system(size: 12))
-                    .foregroundStyle(.orange)
-                    .padding(.vertical, 10)
+                Text(
+                    L10n.tr(
+                        "有 \(workspace.loadIssues.count) 个文件未载入，原文件已保留。",
+                        "\(workspace.loadIssues.count) file(s) could not be loaded; originals were preserved."
+                    )
+                )
+                .font(.system(size: 12))
+                .foregroundStyle(.orange)
+                .padding(.vertical, 10)
             }
 
             if workspace.isLoading {
-                ProgressView("正在打开日记库…")
+                ProgressView(L10n.tr("正在打开日记库…", "Opening library…"))
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else if workspace.isShowingTrash {
                 TrashDetailView(workspace: workspace)
@@ -116,10 +121,12 @@ struct JournalReaderView: View {
                     Image(systemName: "leaf")
                         .font(.system(size: 34, weight: .light))
                         .foregroundStyle(DiaryStyle.accent)
-                    Text("给今天留下一点记录")
+                    Text(L10n.tr("给今天留下一点记录", "Leave a quiet note for today"))
                         .font(.system(size: 22, design: .serif))
-                    Button("写下第一篇日记") { Task { await workspace.addEntry() } }
-                        .buttonStyle(.borderedProminent)
+                    Button(L10n.tr("写下第一篇日记", "Write First Entry")) {
+                        Task { await workspace.addEntry() }
+                    }
+                    .buttonStyle(.borderedProminent)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
@@ -153,7 +160,7 @@ struct JournalReaderView: View {
                     Image(systemName: "tree")
                         .font(.system(size: 12))
                         .foregroundStyle(DiaryStyle.accent)
-                    Text("日记树")
+                    Text(L10n.tr("日记树", "Tree"))
                         .font(.system(size: 12.5, weight: .medium))
                 }
                 .foregroundStyle(.primary)
@@ -162,7 +169,7 @@ struct JournalReaderView: View {
                 .background(.ultraThinMaterial, in: Capsule())
             }
             .buttonStyle(.plain)
-            .help("保存并返回日记树主页")
+            .help(L10n.tr("保存并返回日记树主页", "Save and return to Diary Tree"))
             .disabled(workspace.isBusy)
 
             Button {
@@ -175,7 +182,7 @@ struct JournalReaderView: View {
                     .background(.ultraThinMaterial, in: Circle())
             }
             .buttonStyle(.plain)
-            .help("展开或收起目录、搜索与废纸篓")
+            .help(L10n.tr("展开或收起目录、搜索与废纸篓", "Toggle Entries, Search & Trash Drawer"))
             .disabled(workspace.isBusy)
 
             Spacer()
@@ -190,7 +197,7 @@ struct JournalReaderView: View {
                     .background(.ultraThinMaterial, in: Circle())
             }
             .buttonStyle(.plain)
-            .help("新建日记 (⌘N)")
+            .help(L10n.tr("新建日记 (⌘N)", "New Entry (⌘N)"))
             .disabled(workspace.isBusy)
 
             if workspace.selectedEntry != nil {
@@ -208,7 +215,11 @@ struct JournalReaderView: View {
                         .background(.ultraThinMaterial, in: Circle())
                 }
                 .buttonStyle(.plain)
-                .help(workspace.isLocked ? "解锁日记" : "加密或锁定日记")
+                .help(
+                    workspace.isLocked
+                        ? L10n.tr("解锁日记", "Unlock Entry")
+                        : L10n.tr("加密或锁定日记", "Encrypt or Lock Entry")
+                )
                 .disabled(workspace.isBusy)
 
                 diaryActionsMenu
@@ -222,7 +233,7 @@ struct JournalReaderView: View {
                     .background(.ultraThinMaterial, in: Circle())
             }
             .buttonStyle(.plain)
-            .help("备份与恢复")
+            .help(L10n.tr("备份与恢复", "Backup & Restore"))
             .disabled(workspace.isBusy)
 
             Button(action: openCapabilities) {
@@ -233,7 +244,7 @@ struct JournalReaderView: View {
                     .background(.ultraThinMaterial, in: Circle())
             }
             .buttonStyle(.plain)
-            .help("技术验证：Touch ID")
+            .help(L10n.tr("技术验证：Touch ID", "Diagnostics: Touch ID"))
             .disabled(workspace.isBusy)
         }
         .padding(.leading, 84)
@@ -246,33 +257,40 @@ struct JournalReaderView: View {
         Menu {
             if let session = workspace.session, session.document.content.isEncrypted {
                 if session.isBiometricEnabled {
-                    Button("停用这篇日记的 Touch ID") { Task { await session.disableTouchID() } }
+                    Button(L10n.tr("停用这篇日记的 Touch ID", "Disable Touch ID for Entry")) {
+                        Task { await session.disableTouchID() }
+                    }
                 } else {
-                    Button("为这篇日记启用 Touch ID") { Task { await session.enableTouchID() } }
-                        .disabled(session.isLocked || session.biometricUnavailableReason != nil)
-                    Text(session.biometricUnavailableReason ?? "先用密码解锁，再启用 Touch ID")
+                    Button(L10n.tr("为这篇日记启用 Touch ID", "Enable Touch ID for Entry")) {
+                        Task { await session.enableTouchID() }
+                    }
+                    .disabled(session.isLocked || session.biometricUnavailableReason != nil)
+                    Text(
+                        session.biometricUnavailableReason
+                            ?? L10n.tr("先用密码解锁，再启用 Touch ID", "Unlock with password first to enable Touch ID")
+                    )
                 }
                 Divider()
             }
             if workspace.location != nil {
-                Button("清除位置") { _ = workspace.clearLocation() }
+                Button(L10n.tr("清除位置", "Clear Location")) { _ = workspace.clearLocation() }
             }
-            Button("获取当前位置…") {
+            Button(L10n.tr("获取当前位置…", "Use Current Location…")) {
                 Task { await workspace.attachCurrentLocation() }
             }
             .disabled(workspace.isLocked || workspace.isBusy)
-            Button("在地图上选点…", action: openMapPicker)
+            Button(L10n.tr("在地图上选点…", "Pick Location on Map…"), action: openMapPicker)
                 .disabled(workspace.isLocked || workspace.isBusy)
-            Button("刷新天气") { workspace.refreshWeather() }
+            Button(L10n.tr("刷新天气", "Refresh Weather")) { workspace.refreshWeather() }
                 .disabled(
                     workspace.isLocked || workspace.isBusy || workspace.location == nil
                         || !workspace.canRefreshWeather || workspace.isWeatherLoading)
             if workspace.location != nil && !workspace.canRefreshWeather {
-                Text("过去日期的日记不获取当前天气")
+                Text(L10n.tr("过去日期的日记不获取当前天气", "Current weather is not fetched for past entries"))
             }
-            if workspace.isLocked { Text("解锁后可添加位置") }
+            if workspace.isLocked { Text(L10n.tr("解锁后可添加位置", "Unlock to attach location")) }
             Divider()
-            Button("导出 Markdown…") {
+            Button(L10n.tr("导出 Markdown…", "Export Markdown…")) {
                 MarkdownExportPanel.present(
                     for: workspace,
                     initialDirectory: configuration.isValidation
@@ -280,9 +298,9 @@ struct JournalReaderView: View {
             }
             .keyboardShortcut("e", modifiers: [.command, .shift])
             .disabled(workspace.isLocked)
-            if workspace.isLocked { Text("解锁后可导出正文") }
+            if workspace.isLocked { Text(L10n.tr("解锁后可导出正文", "Unlock to export entry")) }
             Divider()
-            Button("移入废纸篓", systemImage: "trash") {
+            Button(L10n.tr("移入废纸篓", "Move to Trash"), systemImage: "trash") {
                 Task { await workspace.trashSelected() }
             }
         } label: {
@@ -294,7 +312,7 @@ struct JournalReaderView: View {
         }
         .menuStyle(.borderlessButton)
         .fixedSize()
-        .help("日记操作")
+        .help(L10n.tr("日记操作", "Entry Actions"))
         .disabled(workspace.isBusy)
     }
 
@@ -329,7 +347,7 @@ struct JournalReaderView: View {
                 .buttonStyle(.plain)
                 .padding(.top, 14)
                 .padding(.trailing, 14)
-                .help("收起目录")
+                .help(L10n.tr("收起目录", "Close Drawer"))
             }
             .ignoresSafeArea(edges: .bottom)
             .transition(.move(edge: .leading))

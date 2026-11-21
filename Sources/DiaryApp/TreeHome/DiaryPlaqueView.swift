@@ -133,14 +133,16 @@ struct DiaryPlaqueView: View {
             Button {
                 onOpen()
             } label: {
-                Label("打开日记", systemImage: "book.pages")
+                Label(L10n.tr("打开日记", "Open Entry"), systemImage: "book.pages")
             }
 
             Button {
                 onLockAction()
             } label: {
                 Label(
-                    entry.isEncrypted ? "解锁日记…" : "加密这篇日记…",
+                    entry.isEncrypted
+                        ? L10n.tr("解锁日记…", "Unlock Entry…")
+                        : L10n.tr("加密这篇日记…", "Encrypt Entry…"),
                     systemImage: entry.isEncrypted ? "lock.open" : "lock"
                 )
             }
@@ -148,14 +150,17 @@ struct DiaryPlaqueView: View {
             if entry.isEncrypted {
                 Button {
                 } label: {
-                    Label("导出 Markdown（需先解锁）", systemImage: "square.and.arrow.up")
+                    Label(
+                        L10n.tr("导出 Markdown（需先解锁）", "Export Markdown (Unlock First)"),
+                        systemImage: "square.and.arrow.up"
+                    )
                 }
                 .disabled(true)
             } else {
                 Button {
                     onExport()
                 } label: {
-                    Label("导出 Markdown…", systemImage: "square.and.arrow.up")
+                    Label(L10n.tr("导出 Markdown…", "Export Markdown…"), systemImage: "square.and.arrow.up")
                 }
             }
 
@@ -164,7 +169,7 @@ struct DiaryPlaqueView: View {
             Button(role: .destructive) {
                 onTrash()
             } label: {
-                Label("移入废纸篓", systemImage: "trash")
+                Label(L10n.tr("移入废纸篓", "Move to Trash"), systemImage: "trash")
             }
         }
         .help(
@@ -175,16 +180,21 @@ struct DiaryPlaqueView: View {
             y: anchor.branchPoint.y + (anchor.cordLength + plaqueHeight + 4.5) * 0.5 - 2.25
         )
         .accessibilityLabel(accessibilityTitle)
-        .accessibilityHint("点击打开这篇日记，右键可加密、导出或移入废纸篓")
+        .accessibilityHint(
+            L10n.tr(
+                "点击打开这篇日记，右键可加密、导出或移入废纸篓",
+                "Click to open this entry; right-click to encrypt, export, or move to Trash"
+            )
+        )
     }
 
     static func displayTitle(for title: String) -> String {
-        title.isEmpty ? "无标题日记" : title
+        title.isEmpty ? L10n.tr("无标题日记", "Untitled Entry") : title
     }
 
     static func shortDateText(for day: String) -> String {
         let today = DiaryMetadata(title: "").day
-        if day == today { return "今天" }
+        if day == today { return L10n.tr("今天", "Today") }
         let parts = day.split(separator: "-")
         guard parts.count == 3, let month = Int(parts[1]), let date = Int(parts[2]) else {
             return day
@@ -197,9 +207,9 @@ struct DiaryPlaqueView: View {
     }
 
     private var accessibilityTitle: String {
-        let privacy = entry.isEncrypted ? "私密日记，" : ""
+        let privacy = entry.isEncrypted ? L10n.tr("私密日记，", "Private entry, ") : ""
         return
-            "\(privacy)\(Self.shortDateText(for: entry.metadata.day))，\(Self.displayTitle(for: entry.metadata.title))"
+            "\(privacy)\(Self.shortDateText(for: entry.metadata.day)), \(Self.displayTitle(for: entry.metadata.title))"
     }
 }
 
@@ -230,7 +240,7 @@ struct EmptyTreePlaqueView: View {
                     Image(systemName: "plus.circle")
                         .font(.system(size: 13, weight: .light))
                         .foregroundStyle(DiaryStyle.accent)
-                    Text("挂上第一篇")
+                    Text(L10n.tr("挂上第一篇", "Hang First Entry"))
                         .font(.system(size: 10.5, weight: .medium, design: .serif))
                         .foregroundStyle(palette.plaqueText)
                 }
@@ -262,6 +272,6 @@ struct EmptyTreePlaqueView: View {
             x: anchor.branchPoint.x,
             y: anchor.branchPoint.y + (anchor.cordLength + plaqueHeight + 4.5) * 0.5 - 2.25
         )
-        .accessibilityLabel("挂上第一篇日记")
+        .accessibilityLabel(L10n.tr("挂上第一篇日记", "Hang your first diary entry"))
     }
 }

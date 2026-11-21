@@ -16,16 +16,33 @@ struct PasswordSheet: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
-            Label(isUnlocking ? "打开私密日记" : "为这篇日记设置密码", systemImage: "lock.shield")
-                .font(.system(size: 20, weight: .medium, design: .serif))
-            Text(isUnlocking ? "密码只用于本机解密。" : "正文将被加密，标题继续可见。请记住密码，当前没有密码找回功能。")
-                .font(.system(size: 12)).foregroundStyle(.secondary)
+            Label(
+                isUnlocking
+                    ? L10n.tr("打开私密日记", "Unlock Private Entry")
+                    : L10n.tr("为这篇日记设置密码", "Encrypt This Entry"),
+                systemImage: "lock.shield"
+            )
+            .font(.system(size: 20, weight: .medium, design: .serif))
+            Text(
+                isUnlocking
+                    ? L10n.tr("密码只用于本机解密。", "Your password is used strictly for local decryption.")
+                    : L10n.tr(
+                        "正文将被加密，标题继续可见。请记住密码，当前没有密码找回功能。",
+                        "The body will be encrypted while the title stays visible. Remember your password — there is no password recovery."
+                    )
+            )
+            .font(.system(size: 12)).foregroundStyle(.secondary)
 
-            SecureField(isUnlocking ? "输入密码" : "至少 8 个字符", text: $prompt.password)
-                .focused($passwordFocused)
-                .onSubmit { submit() }
+            SecureField(
+                isUnlocking
+                    ? L10n.tr("输入密码", "Enter password")
+                    : L10n.tr("至少 8 个字符", "At least 8 characters"),
+                text: $prompt.password
+            )
+            .focused($passwordFocused)
+            .onSubmit { submit() }
             if !isUnlocking {
-                SecureField("再次输入密码", text: $prompt.confirmation)
+                SecureField(L10n.tr("再次输入密码", "Confirm password"), text: $prompt.confirmation)
                     .onSubmit { submit() }
             }
             if let error = prompt.errorMessage {
@@ -34,15 +51,19 @@ struct PasswordSheet: View {
             HStack {
                 if prompt.isWorking { ProgressView().controlSize(.small) }
                 Spacer()
-                Button("取消", role: .cancel) {
+                Button(L10n.tr("取消", "Cancel"), role: .cancel) {
                     prompt.cancel()
                     dismiss()
                 }
                 .keyboardShortcut(.cancelAction)
-                Button(isUnlocking ? "解锁" : "加密并锁定") { submit() }
-                    .buttonStyle(.borderedProminent)
-                    .keyboardShortcut(.defaultAction)
-                    .disabled(prompt.password.isEmpty)
+                Button(
+                    isUnlocking
+                        ? L10n.tr("解锁", "Unlock")
+                        : L10n.tr("加密并锁定", "Encrypt & Lock")
+                ) { submit() }
+                .buttonStyle(.borderedProminent)
+                .keyboardShortcut(.defaultAction)
+                .disabled(prompt.password.isEmpty)
             }
         }
         .textFieldStyle(.roundedBorder)

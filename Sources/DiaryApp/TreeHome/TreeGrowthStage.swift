@@ -13,21 +13,21 @@ enum TreeGrowthStage: Int, CaseIterable, Identifiable, Sendable {
 
     var label: String {
         switch self {
-        case .sapling: "幼苗"
-        case .young: "小树"
-        case .lush: "繁茂大树"
-        case .ancient: "参天古树"
-        case .giant: "记忆巨木"
+        case .sapling: L10n.tr("幼苗", "Sapling")
+        case .young: L10n.tr("小树", "Young Tree")
+        case .lush: L10n.tr("繁茂大树", "Lush Tree")
+        case .ancient: L10n.tr("参天古树", "Ancient Tree")
+        case .giant: L10n.tr("记忆巨木", "Giant Tree")
         }
     }
 
     var rangeHint: String {
         switch self {
-        case .sapling: "0 篇"
-        case .young: "1–10 篇"
-        case .lush: "11–50 篇"
-        case .ancient: "51–200 篇"
-        case .giant: "200+ 篇"
+        case .sapling: L10n.tr("0 篇", "0 entries")
+        case .young: L10n.tr("1–10 篇", "1–10 entries")
+        case .lush: L10n.tr("11–50 篇", "11–50 entries")
+        case .ancient: L10n.tr("51–200 篇", "51–200 entries")
+        case .giant: L10n.tr("200+ 篇", "200+ entries")
         }
     }
 

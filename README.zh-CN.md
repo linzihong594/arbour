@@ -41,8 +41,8 @@
 
 前往 [**GitHub Releases**](https://github.com/linzihong594/arbour/releases/latest) 直接下载预编译的 **Apple Silicon（`arm64`）** 软件包：
 
-- **`Arbour-0.6.0-macOS-arm64.dmg`** — 双击打开后将 `栖木.app` 拖入「应用程序」文件夹即可。
-- **`Arbour-0.6.0-macOS-arm64.zip`** — 解压后直接运行。
+- **`Arbour-0.7.0-macOS-arm64.dmg`** — 双击打开后将 `栖木.app` 拖入「应用程序」文件夹即可。
+- **`Arbour-0.7.0-macOS-arm64.zip`** — 解压后直接运行。
 
 > **首次打开说明（未公证开源版）：**
 > 当前开源预编译包采用本地 ad-hoc 签名，未经过付费 Apple Developer ID 公证。从网络下载后首次打开时，macOS 可能会提示「无法验证开发者」。在确认来源后，可在终端运行以下一行命令放行：

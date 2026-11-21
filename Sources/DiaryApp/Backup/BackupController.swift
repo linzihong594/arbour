@@ -18,12 +18,18 @@ enum BackupStatus: Equatable {
 
     var label: String {
         switch self {
-        case .idle: "尚未创建快照"
+        case .idle: L10n.tr("尚未创建快照", "No snapshots created yet")
         case .working(let label): label
         case .localComplete(let count, let date, let cloud, _):
-            "已写入 \(count) 个文件，\(date.formatted(date: .abbreviated, time: .standard))；\(cloud.label)"
+            L10n.tr(
+                "已写入 \(count) 个文件，\(date.formatted(date: .abbreviated, time: .standard))；\(cloud.label)",
+                "Wrote \(count) files at \(date.formatted(date: .abbreviated, time: .standard))"
+            )
         case .restored(let directory, let active, let trashed):
-            "已恢复到 \(directory)：\(active) 篇备份内日记、\(trashed) 篇废纸篓日记。"
+            L10n.tr(
+                "已恢复到 \(directory)：\(active) 篇备份内日记、\(trashed) 篇废纸篓日记。",
+                "Restored to \(directory): \(active) entries, \(trashed) in Trash."
+            )
         case .failed(let message, _): message
         }
     }

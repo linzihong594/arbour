@@ -23,15 +23,19 @@ struct DiaryEditorView: View {
                             .padding(.horizontal, 8)
                             .padding(.vertical, 3)
                             .background(.quaternary.opacity(0.45), in: Capsule())
-                            .help(location.source == .manual ? "地图选点" : "单次定位")
+                            .help(
+                                location.source == .manual
+                                    ? L10n.tr("地图选点", "Picked on Map")
+                                    : L10n.tr("单次定位", "Current Location")
+                            )
                     } else if let openMapPicker, !workspace.isLocked {
                         Button(action: openMapPicker) {
-                            Label("记下地点", systemImage: "mappin")
+                            Label(L10n.tr("记下地点", "Add Location"), systemImage: "mappin")
                                 .font(.system(size: 11))
                                 .foregroundStyle(.tertiary)
                         }
                         .buttonStyle(.plain)
-                        .help("在地图上选点")
+                        .help(L10n.tr("在地图上选点", "Pick location on map"))
                     }
 
                     if let weather = workspace.weather {
@@ -43,7 +47,10 @@ struct DiaryEditorView: View {
                             .background(.quaternary.opacity(0.45), in: Capsule())
                             .help(
                                 "\(weather.source) · "
-                                    + "\(weather.fetchedAt.formatted(date: .omitted, time: .shortened)) 请求"
+                                    + L10n.tr(
+                                        "\(weather.fetchedAt.formatted(date: .omitted, time: .shortened)) 请求",
+                                        "Fetched at \(weather.fetchedAt.formatted(date: .omitted, time: .shortened))"
+                                    )
                             )
                     }
 
@@ -53,16 +60,21 @@ struct DiaryEditorView: View {
 
                     Spacer(minLength: 8)
 
-                    Toggle("Markdown 原文", isOn: $showsSource)
+                    Toggle(L10n.tr("Markdown 原文", "Markdown Source"), isOn: $showsSource)
                         .toggleStyle(.switch)
                         .controlSize(.mini)
                         .font(.system(size: 11))
                         .foregroundStyle(.secondary)
-                        .help("切换模式会重建编辑器，并清除本篇的撤销历史。")
+                        .help(
+                            L10n.tr(
+                                "切换模式会重建编辑器，并清除本篇的撤销历史。",
+                                "Switching modes recreates the editor and clears undo history."
+                            )
+                        )
                 }
 
                 TextField(
-                    "给今天一个标题",
+                    L10n.tr("给今天一个标题", "Title for today"),
                     text: Binding(
                         get: {
                             workspace.editorIdentity == identity
@@ -74,7 +86,7 @@ struct DiaryEditorView: View {
                 .textFieldStyle(.plain)
                 .font(.system(size: 30, weight: .medium, design: .serif))
                 .lineLimit(1)
-                .accessibilityLabel("日记标题")
+                .accessibilityLabel(L10n.tr("日记标题", "Diary Title"))
 
                 Rectangle()
                     .fill(DiaryStyle.paperBorder)
@@ -94,10 +106,10 @@ struct DiaryEditorView: View {
                 isEditable: !workspace.isBusy
             )
             .padding(.horizontal, 40)
-            .accessibilityLabel("日记正文")
+            .accessibilityLabel(L10n.tr("日记正文", "Diary Body"))
 
             HStack(spacing: 12) {
-                Text("\(workspace.markdown.count) 字")
+                Text(L10n.tr("\(workspace.markdown.count) 字", "\(workspace.markdown.count) chars"))
                 if let status = workspace.weatherStatus {
                     Text(status).foregroundStyle(.orange).lineLimit(1)
                 }
@@ -106,7 +118,7 @@ struct DiaryEditorView: View {
                     ProgressView().controlSize(.mini)
                 }
                 Label(
-                    workspace.session?.autosave.status.label ?? "",
+                    localizedAutosaveLabel,
                     systemImage: workspace.selectedEntry?.content.isEncrypted == true
                         ? "lock.shield" : "checkmark.circle"
                 )
@@ -119,12 +131,23 @@ struct DiaryEditorView: View {
         .disabled(workspace.isBusy)
     }
 
+    private var localizedAutosaveLabel: String {
+        guard let status = workspace.session?.autosave.status else { return "" }
+        if !L10n.isEnglish { return status.label }
+        switch status {
+        case .saved: return "Saved Locally"
+        case .pending: return "Pending Save…"
+        case .saving: return "Saving…"
+        case .failed: return "Save failed — draft not written to disk"
+        }
+    }
+
     private var dateLabel: String {
         guard let metadata = workspace.selectedEntry?.metadata, let date = metadata.diaryDate else {
             return ""
         }
         var style = Date.FormatStyle.dateTime.year().month(.wide).day().weekday(.wide).locale(
-            Locale(identifier: "zh_CN"))
+            L10n.locale)
         style.timeZone = TimeZone(identifier: metadata.timeZoneID) ?? .current
         return date.formatted(style)
     }

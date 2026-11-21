@@ -27,9 +27,9 @@ struct LocationMapPicker: View {
     var body: some View {
         VStack(spacing: 0) {
             HStack {
-                Text("在地图上选点").font(.system(size: 15, weight: .semibold))
+                Text(L10n.tr("在地图上选点", "Pick Location on Map")).font(.system(size: 15, weight: .semibold))
                 Spacer()
-                Button("取消") { dismiss() }.keyboardShortcut(.cancelAction)
+                Button(L10n.tr("取消", "Cancel")) { dismiss() }.keyboardShortcut(.cancelAction)
             }
             .padding(.horizontal, 20)
             .padding(.vertical, 14)
@@ -42,7 +42,7 @@ struct LocationMapPicker: View {
                         .shadow(radius: 2)
                         .allowsHitTesting(false)
                 }
-                .accessibilityLabel("地图，拖动或点击选择位置")
+                .accessibilityLabel(L10n.tr("地图，拖动或点击选择位置", "Map, drag or click to pick a location"))
                 .frame(minWidth: 560, minHeight: 360)
 
             HStack(spacing: 12) {
@@ -50,11 +50,11 @@ struct LocationMapPicker: View {
                     .foregroundStyle(DiaryStyle.accent)
                 Text(String(format: "%.4f, %.4f", selected.latitude, selected.longitude))
                     .font(.system(size: 12, design: .monospaced))
-                Text("拖动或点击地图选择位置，中心准星即所选点")
+                Text(L10n.tr("拖动或点击地图选择位置，中心准星即所选点", "Drag or click the map; the center reticle is selected"))
                     .font(.system(size: 11))
                     .foregroundStyle(.secondary)
                 Spacer()
-                Button("使用此位置") {
+                Button(L10n.tr("使用此位置", "Use Location")) {
                     onConfirm(
                         DiaryLocation(
                             latitude: selected.latitude,

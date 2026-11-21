@@ -23,7 +23,9 @@ struct DiaryPreviewApp: App {
 
     var body: some Scene {
         Window(
-            configuration.isDemo ? "栖木 · 示例库" : "栖木",
+            configuration.isDemo
+                ? L10n.tr("栖木 · 示例库", "Arbour · Demo")
+                : L10n.tr("栖木", "Arbour"),
             id: configuration.isValidation ? "validation-workspace" : "workspace"
         ) {
             WorkspaceView(workspace: workspace, configuration: configuration)
@@ -53,11 +55,11 @@ struct DiaryPreviewApp: App {
         .windowStyle(.hiddenTitleBar)
         .commands {
             CommandGroup(replacing: .newItem) {
-                Button("新建日记") { Task { await workspace.addEntry() } }
+                Button(L10n.tr("新建日记", "New Entry")) { Task { await workspace.addEntry() } }
                     .keyboardShortcut("n", modifiers: .command).disabled(workspace.isBusy)
             }
             CommandGroup(replacing: .saveItem) {
-                Button("保存日记") { Task { await workspace.flush() } }
+                Button(L10n.tr("保存日记", "Save Entry")) { Task { await workspace.flush() } }
                     .keyboardShortcut("s", modifiers: .command).disabled(workspace.isBusy)
             }
         }

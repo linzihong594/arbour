@@ -499,17 +499,17 @@ struct TreeHomeView: View {
         HStack(spacing: 10) {
             VStack(alignment: .leading, spacing: 2) {
                 HStack(spacing: 8) {
-                    Text("栖木")
+                    Text(L10n.tr("栖木", "Arbour"))
                         .font(.system(size: 20, weight: .semibold, design: .serif))
                     if isDemo {
-                        Text("示例库")
+                        Text(L10n.tr("示例库", "Demo"))
                             .font(.system(size: 10, weight: .medium))
                             .padding(.horizontal, 7)
                             .padding(.vertical, 2)
                             .background(.ultraThinMaterial, in: Capsule())
                     }
                 }
-                Text("把一天，挂在风里")
+                Text(L10n.tr("把一天，挂在风里", "Hang your day in the wind"))
                     .font(.system(size: 11))
                     .foregroundStyle(.secondary)
             }
@@ -519,7 +519,7 @@ struct TreeHomeView: View {
             weatherAndStageMenu(stage: stage)
 
             Button(action: createEntry) {
-                Label("写一篇", systemImage: "square.and.pencil")
+                Label(L10n.tr("写一篇", "New Entry"), systemImage: "square.and.pencil")
                     .font(.system(size: 12.5, weight: .medium))
                     .padding(.horizontal, 12)
                     .padding(.vertical, 7)
@@ -527,7 +527,7 @@ struct TreeHomeView: View {
                     .foregroundStyle(.white)
             }
             .buttonStyle(.plain)
-            .help("新建日记 (⌘N)")
+            .help(L10n.tr("新建日记 (⌘N)", "New Entry (⌘N)"))
             .disabled(workspace.isBusy)
 
             Button(action: openListWorkspace) {
@@ -537,7 +537,7 @@ struct TreeHomeView: View {
                     .background(.ultraThinMaterial, in: Circle())
             }
             .buttonStyle(.plain)
-            .help("列表、搜索与废纸篓")
+            .help(L10n.tr("列表、搜索与废纸篓", "Entries, Search & Trash"))
             .disabled(workspace.isBusy)
 
             Button(action: openBackup) {
@@ -547,7 +547,7 @@ struct TreeHomeView: View {
                     .background(.ultraThinMaterial, in: Circle())
             }
             .buttonStyle(.plain)
-            .help("备份与恢复")
+            .help(L10n.tr("备份与恢复", "Backup & Restore"))
             .disabled(workspace.isBusy)
 
             Button(action: openCapabilities) {
@@ -557,7 +557,7 @@ struct TreeHomeView: View {
                     .background(.ultraThinMaterial, in: Circle())
             }
             .buttonStyle(.plain)
-            .help("技术验证：Touch ID")
+            .help(L10n.tr("技术验证：Touch ID", "Diagnostics: Touch ID"))
             .disabled(workspace.isBusy)
         }
         .padding(.leading, 84)
@@ -570,12 +570,17 @@ struct TreeHomeView: View {
             Button {
                 weather.refreshLiveWeather()
             } label: {
-                Label("同步当前位置天气", systemImage: "location")
+                Label(L10n.tr("同步当前位置天气", "Sync Local Weather"), systemImage: "location")
             }
             .disabled(weather.isLoading)
 
             if let live = weather.liveWeather {
-                Text("实时：\(live.summaryText)（\(live.source)）")
+                Text(
+                    L10n.tr(
+                        "实时：\(live.summaryText)（\(live.source)）",
+                        "Live: \(live.summaryText) (\(live.source))"
+                    )
+                )
             }
 
             Divider()
@@ -583,10 +588,11 @@ struct TreeHomeView: View {
             Button {
                 weather.previewOverride = nil
             } label: {
+                let title = L10n.tr("使用实时天气", "Use Live Weather")
                 if weather.previewOverride == nil {
-                    Label("使用实时天气", systemImage: "checkmark")
+                    Label(title, systemImage: "checkmark")
                 } else {
-                    Text("使用实时天气")
+                    Text(title)
                 }
             }
 
@@ -594,24 +600,27 @@ struct TreeHomeView: View {
                 Button {
                     weather.previewOverride = kind
                 } label: {
+                    let title = L10n.tr("天气预览：\(kind.label)", "Weather: \(kind.label)")
                     if weather.previewOverride == kind {
-                        Label("天气预览：\(kind.label)", systemImage: "checkmark")
+                        Label(title, systemImage: "checkmark")
                     } else {
-                        Label("天气预览：\(kind.label)", systemImage: kind.symbolName)
+                        Label(title, systemImage: kind.symbolName)
                     }
                 }
             }
 
             Divider()
 
-            Menu("季节色板（当前：\(effectiveSeason.shortLabel)）") {
+            Menu(L10n.tr("季节色板（当前：\(effectiveSeason.shortLabel)）", "Season (\(effectiveSeason.shortLabel))"))
+            {
                 Button {
                     previewSeasonOverride = nil
                 } label: {
+                    let title = L10n.tr("随当前月份自动切换", "Automatic by Month")
                     if previewSeasonOverride == nil {
-                        Label("随当前月份自动切换", systemImage: "checkmark")
+                        Label(title, systemImage: "checkmark")
                     } else {
-                        Text("随当前月份自动切换")
+                        Text(title)
                     }
                 }
                 Divider()
@@ -628,14 +637,15 @@ struct TreeHomeView: View {
                 }
             }
 
-            Menu("树龄成长（当前：\(stage.label)）") {
+            Menu(L10n.tr("树龄成长（当前：\(stage.label)）", "Tree Growth (\(stage.label))")) {
                 Button {
                     previewStageOverride = nil
                 } label: {
+                    let title = L10n.tr("随日记篇数自动生长", "Automatic by Entry Count")
                     if previewStageOverride == nil {
-                        Label("随日记篇数自动生长", systemImage: "checkmark")
+                        Label(title, systemImage: "checkmark")
                     } else {
-                        Text("随日记篇数自动生长")
+                        Text(title)
                     }
                 }
                 Divider()
@@ -643,7 +653,10 @@ struct TreeHomeView: View {
                     Button {
                         previewStageOverride = candidate
                     } label: {
-                        let title = "\(candidate.label)（\(candidate.rangeHint)）"
+                        let title = L10n.tr(
+                            "\(candidate.label)（\(candidate.rangeHint)）",
+                            "\(candidate.label) (\(candidate.rangeHint))"
+                        )
                         if previewStageOverride == candidate {
                             Label(title, systemImage: "checkmark")
                         } else {
@@ -671,15 +684,15 @@ struct TreeHomeView: View {
         }
         .menuStyle(.borderlessButton)
         .fixedSize()
-        .help("同步当天位置天气、切换天气场景或预览树龄成长")
+        .help(L10n.tr("同步当天位置天气、切换天气场景或预览树龄成长", "Sync weather, preview seasons, or preview tree growth"))
     }
 
     private func periodDisplayLabel(_ period: String?) -> String {
-        guard let period else { return "全部时光" }
-        if period.count == 4 { return "\(period) 年" }
+        guard let period else { return L10n.tr("全部时光", "All Time") }
+        if period.count == 4 { return L10n.tr("\(period) 年", period) }
         let parts = period.split(separator: "-")
         if parts.count == 2, let m = Int(parts[1]) {
-            return "\(parts[0]) 年 \(m) 月"
+            return L10n.tr("\(parts[0]) 年 \(m) 月", "\(parts[0])-\(String(format: "%02d", m))")
         }
         return period
     }
@@ -689,10 +702,14 @@ struct TreeHomeView: View {
             Button {
                 selectedPeriod = nil
             } label: {
+                let title = L10n.tr(
+                    "全部时光（\(workspace.entries.count) 篇）",
+                    "All Time (\(workspace.entries.count))"
+                )
                 if selectedPeriod == nil {
-                    Label("全部时光（\(workspace.entries.count) 篇）", systemImage: "checkmark")
+                    Label(title, systemImage: "checkmark")
                 } else {
-                    Text("全部时光（\(workspace.entries.count) 篇）")
+                    Text(title)
                 }
             }
 
@@ -702,10 +719,11 @@ struct TreeHomeView: View {
                     Button {
                         selectedPeriod = year
                     } label: {
+                        let label = L10n.tr("\(year) 年", year)
                         if selectedPeriod == year {
-                            Label("\(year) 年", systemImage: "checkmark")
+                            Label(label, systemImage: "checkmark")
                         } else {
-                            Text("\(year) 年")
+                            Text(label)
                         }
                     }
                 }
@@ -737,7 +755,7 @@ struct TreeHomeView: View {
         }
         .menuStyle(.borderlessButton)
         .fixedSize()
-        .help("按年份或月份筛选树上的日记")
+        .help(L10n.tr("按年份或月份筛选树上的日记", "Filter entries by year or month"))
     }
 
     private func bottomBar(viewportSize: CGSize, stage: TreeGrowthStage) -> some View {
@@ -758,9 +776,14 @@ struct TreeHomeView: View {
                     .buttonStyle(.plain)
                     .disabled(pageIndex <= 0)
 
-                    Text("\(stage.label) · 第 \(pageIndex + 1)/\(totalPages) 组 · 共 \(scopedEntries.count) 篇")
-                        .font(.system(size: 11, weight: .medium))
-                        .foregroundStyle(.secondary)
+                    Text(
+                        L10n.tr(
+                            "\(stage.label) · 第 \(pageIndex + 1)/\(totalPages) 组 · 共 \(scopedEntries.count) 篇",
+                            "\(stage.label) · Page \(pageIndex + 1)/\(totalPages) · \(scopedEntries.count) entries"
+                        )
+                    )
+                    .font(.system(size: 11, weight: .medium))
+                    .foregroundStyle(.secondary)
 
                     Button {
                         pageIndex = min(totalPages - 1, pageIndex + 1)
@@ -773,16 +796,23 @@ struct TreeHomeView: View {
 
                     Divider().frame(height: 11)
 
-                    Button("全部列表", action: openListWorkspace)
+                    Button(L10n.tr("全部列表", "All Entries"), action: openListWorkspace)
                         .buttonStyle(.plain)
                         .font(.system(size: 11, weight: .medium))
                         .foregroundStyle(DiaryStyle.accent)
                 } else {
-                    let stagePrefix = previewStageOverride == nil ? stage.label : "预览：\(stage.label)"
+                    let stagePrefix =
+                        previewStageOverride == nil
+                        ? stage.label
+                        : L10n.tr("预览：\(stage.label)", "Preview: \(stage.label)")
                     Text(
                         scopedEntries.isEmpty
-                            ? "\(stagePrefix) · 等待第一篇日记"
-                            : "\(stagePrefix) · 挂着 \(scopedEntries.count) 篇日记"
+                            ? L10n.tr(
+                                "\(stagePrefix) · 等待第一篇日记", "\(stagePrefix) · Ready for your first entry")
+                            : L10n.tr(
+                                "\(stagePrefix) · 挂着 \(scopedEntries.count) 篇日记",
+                                "\(stagePrefix) · \(scopedEntries.count) \(scopedEntries.count == 1 ? "entry" : "entries")"
+                            )
                     )
                     .font(.system(size: 11))
                     .foregroundStyle(.secondary)
@@ -805,7 +835,7 @@ struct TreeHomeView: View {
                     .buttonStyle(.plain)
                     .keyboardShortcut("-", modifiers: .command)
                     .disabled(effectiveZoom <= Self.minZoom + 0.01)
-                    .help("缩小 (⌘-)")
+                    .help(L10n.tr("缩小 (⌘-)", "Zoom Out (⌘-)"))
 
                     Button {
                         resetZoom()
@@ -816,7 +846,7 @@ struct TreeHomeView: View {
                     }
                     .buttonStyle(.plain)
                     .keyboardShortcut("0", modifiers: .command)
-                    .help("还原缩放 (⌘0)")
+                    .help(L10n.tr("还原缩放 (⌘0)", "Reset Zoom (⌘0)"))
 
                     Button {
                         stepZoom(by: 0.25, in: viewportSize)
@@ -828,7 +858,7 @@ struct TreeHomeView: View {
                     .buttonStyle(.plain)
                     .keyboardShortcut("=", modifiers: .command)
                     .disabled(effectiveZoom >= Self.maxZoom - 0.01)
-                    .help("放大 (⌘+)")
+                    .help(L10n.tr("放大 (⌘+)", "Zoom In (⌘+)"))
                 }
                 .padding(.horizontal, 10)
                 .padding(.vertical, 5)

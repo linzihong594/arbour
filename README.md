@@ -41,8 +41,8 @@
 
 Grab the prebuilt **Apple Silicon (`arm64`)** package from [**GitHub Releases**](https://github.com/linzihong594/arbour/releases/latest):
 
-- **`Arbour-0.6.0-macOS-arm64.dmg`** — Drag `栖木.app` into your `Applications` folder.
-- **`Arbour-0.6.0-macOS-arm64.zip`** — Unzip and launch directly.
+- **`Arbour-0.7.0-macOS-arm64.dmg`** — Drag `栖木.app` into your `Applications` folder.
+- **`Arbour-0.7.0-macOS-arm64.zip`** — Unzip and launch directly.
 
 > **First-Launch Note (Unsigned / Ad-hoc Build):**
 > This open-source release is **ad-hoc signed** and not notarized with a paid Apple Developer ID. On first launch, macOS Gatekeeper may warn that the app cannot be verified. To open it after inspecting or downloading:

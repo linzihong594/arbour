@@ -23,19 +23,30 @@ struct LockedDiaryView: View {
                 Image(systemName: "lock")
                     .font(.system(size: 30, weight: .light))
                     .foregroundStyle(DiaryStyle.accent)
-                Text("有些心事，只留给自己")
+                Text(L10n.tr("有些心事，只留给自己", "Some thoughts are meant for you alone"))
                     .font(.system(size: 19, weight: .medium, design: .serif))
-                Text(touchID == nil ? "输入密码，打开这篇日记。" : "使用 Touch ID 或日记密码打开。")
-                    .font(.system(size: 12)).foregroundStyle(.secondary)
+                Text(
+                    touchID == nil
+                        ? L10n.tr("输入密码，打开这篇日记。", "Enter your password to unlock this entry.")
+                        : L10n.tr("使用 Touch ID 或日记密码打开。", "Unlock with Touch ID or your password.")
+                )
+                .font(.system(size: 12)).foregroundStyle(.secondary)
                 if let touchID {
-                    Button(action: touchID) { Label("使用 Touch ID", systemImage: "touchid") }
-                        .buttonStyle(.borderedProminent).controlSize(.large)
+                    Button(action: touchID) {
+                        Label(L10n.tr("使用 Touch ID", "Unlock with Touch ID"), systemImage: "touchid")
+                    }
+                    .buttonStyle(.borderedProminent).controlSize(.large)
                 }
-                Button(touchID == nil ? "解锁日记" : "使用日记密码", action: unlock)
-                    .buttonStyle(.borderedProminent)
-                    .controlSize(.large)
-                    .padding(.top, 4)
-                if isBusy { ProgressView("正在验证…").controlSize(.small) }
+                Button(
+                    touchID == nil
+                        ? L10n.tr("解锁日记", "Unlock Entry")
+                        : L10n.tr("使用日记密码", "Use Password"),
+                    action: unlock
+                )
+                .buttonStyle(.borderedProminent)
+                .controlSize(.large)
+                .padding(.top, 4)
+                if isBusy { ProgressView(L10n.tr("正在验证…", "Verifying…")).controlSize(.small) }
                 if let unavailableReason {
                     Text(unavailableReason).font(.system(size: 11)).foregroundStyle(.secondary)
                         .multilineTextAlignment(.center).frame(maxWidth: 300)

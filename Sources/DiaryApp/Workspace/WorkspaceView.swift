@@ -148,13 +148,13 @@ struct WorkspaceView: View {
             }
         }
         .alert(
-            "暂时无法完成",
+            L10n.tr("暂时无法完成", "Unable to Complete"),
             isPresented: Binding(
                 get: { errorMessage != nil && !showsPassword },
                 set: { if !$0 { clearError() } }
             )
         ) {
-            Button("好", role: .cancel) { clearError() }
+            Button(L10n.tr("好", "OK"), role: .cancel) { clearError() }
         } message: {
             Text(errorMessage ?? "")
         }

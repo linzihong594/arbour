@@ -17,12 +17,12 @@ enum TreeWeatherKind: String, CaseIterable, Identifiable, Sendable {
 
     var label: String {
         switch self {
-        case .clear: "晴朗"
-        case .cloudy: "多云"
-        case .fog: "薄雾"
-        case .rain: "雨天"
-        case .snow: "降雪"
-        case .thunderstorm: "雷雨"
+        case .clear: L10n.tr("晴朗", "Clear")
+        case .cloudy: L10n.tr("多云", "Cloudy")
+        case .fog: L10n.tr("薄雾", "Fog")
+        case .rain: L10n.tr("雨天", "Rain")
+        case .snow: L10n.tr("降雪", "Snow")
+        case .thunderstorm: L10n.tr("雷雨", "Thunderstorm")
         }
     }
 
@@ -71,19 +71,19 @@ enum TreeSeason: String, CaseIterable, Identifiable, Sendable {
 
     var label: String {
         switch self {
-        case .spring: "春 · 新绿樱粉"
-        case .summer: "夏 · 苍翠浓荫"
-        case .autumn: "秋 · 金杏枫红"
-        case .winter: "冬 · 清霜雪枝"
+        case .spring: L10n.tr("春 · 新绿樱粉", "Spring · Blossoms")
+        case .summer: L10n.tr("夏 · 苍翠浓荫", "Summer · Emerald")
+        case .autumn: L10n.tr("秋 · 金杏枫红", "Autumn · Ginkgo & Maple")
+        case .winter: L10n.tr("冬 · 清霜雪枝", "Winter · Frosted Pine")
         }
     }
 
     var shortLabel: String {
         switch self {
-        case .spring: "春"
-        case .summer: "夏"
-        case .autumn: "秋"
-        case .winter: "冬"
+        case .spring: L10n.tr("春", "Spring")
+        case .summer: L10n.tr("夏", "Summer")
+        case .autumn: L10n.tr("秋", "Autumn")
+        case .winter: L10n.tr("冬", "Winter")
         }
     }
 
@@ -523,10 +523,10 @@ final class TreeSceneWeatherController {
 
     var pillLabel: String {
         if let previewOverride {
-            return "预览 · \(previewOverride.label)"
+            return L10n.tr("预览 · \(previewOverride.label)", "Preview · \(previewOverride.label)")
         }
         if isLoading {
-            return "正在同步天气…"
+            return L10n.tr("正在同步天气…", "Syncing Weather…")
         }
         if let liveWeather {
             let temp = "\(Int(liveWeather.temperatureCelsius.rounded()))° \(liveWeather.conditionText)"
@@ -535,7 +535,7 @@ final class TreeSceneWeatherController {
             }
             return temp
         }
-        return "同步今日天气"
+        return L10n.tr("同步今日天气", "Sync Weather")
     }
 
     /// Only auto-fetches on launch if location authorization was already granted; never prompts unexpectedly.
@@ -577,7 +577,7 @@ final class TreeSceneWeatherController {
             } catch let error as DiaryWeatherRequestError {
                 self.statusMessage = error.localizedDescription
             } catch {
-                self.statusMessage = "暂时无法获取天气"
+                self.statusMessage = L10n.tr("暂时无法获取天气", "Unable to fetch weather")
             }
         }
     }

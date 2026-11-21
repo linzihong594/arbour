@@ -9,31 +9,35 @@ struct DiarySidebarControls: View {
     var body: some View {
         VStack(spacing: 12) {
             Picker(
-                "日记范围",
+                L10n.tr("日记范围", "Scope"),
                 selection: Binding(
                     get: { workspace.isShowingTrash },
                     set: { showing in Task { await workspace.showTrash(showing) } }
                 )
             ) {
-                Text("日记").tag(false)
-                Text("废纸篓 \(workspace.trashedEntries.count)").tag(true)
+                Text(L10n.tr("日记", "Entries")).tag(false)
+                Text(
+                    L10n.tr(
+                        "废纸篓 \(workspace.trashedEntries.count)", "Trash \(workspace.trashedEntries.count)")
+                )
+                .tag(true)
             }.pickerStyle(.segmented).labelsHidden()
             HStack(spacing: 7) {
                 Image(systemName: "magnifyingglass").foregroundStyle(.secondary)
                 TextField(
-                    "搜索标题",
+                    L10n.tr("搜索标题", "Search titles"),
                     text: Binding(
                         get: { workspace.filter.titleQuery }, set: { workspace.filter.titleQuery = $0 }
                     )
                 )
                 .textFieldStyle(.plain)
-                .accessibilityLabel("搜索日记标题")
+                .accessibilityLabel(L10n.tr("搜索日记标题", "Search diary titles"))
                 if !workspace.filter.titleQuery.isEmpty {
                     Button {
                         workspace.filter.titleQuery = ""
                     } label: {
                         Image(systemName: "xmark.circle.fill")
-                    }.buttonStyle(.plain).help("清除搜索")
+                    }.buttonStyle(.plain).help(L10n.tr("清除搜索", "Clear Search"))
                 }
             }
             .padding(9)
@@ -42,19 +46,21 @@ struct DiarySidebarControls: View {
                 Button {
                     showsDatePicker = true
                 } label: {
-                    Label(workspace.filter.day ?? "全部日期", systemImage: "calendar")
+                    Label(workspace.filter.day ?? L10n.tr("全部日期", "All Dates"), systemImage: "calendar")
                 }
                 .popover(isPresented: $showsDatePicker) {
                     VStack(spacing: 14) {
-                        DatePicker("浏览日期", selection: $date, displayedComponents: .date)
-                            .datePickerStyle(.graphical)
+                        DatePicker(
+                            L10n.tr("浏览日期", "Browse Date"), selection: $date, displayedComponents: .date
+                        )
+                        .datePickerStyle(.graphical)
                         HStack {
-                            Button("全部日期") {
+                            Button(L10n.tr("全部日期", "All Dates")) {
                                 workspace.filter.day = nil
                                 showsDatePicker = false
                             }
                             Spacer()
-                            Button("按这一天筛选") {
+                            Button(L10n.tr("按这一天筛选", "Filter by Day")) {
                                 var calendar = Calendar(identifier: .gregorian)
                                 calendar.timeZone = .current
                                 let parts = calendar.dateComponents([.year, .month, .day], from: date)
@@ -71,10 +77,15 @@ struct DiarySidebarControls: View {
                     } label: {
                         Image(systemName: "xmark.circle")
                     }
-                    .help("显示全部日期")
+                    .help(L10n.tr("显示全部日期", "Show All Dates"))
                 }
                 Spacer()
-                Text("\(workspace.visibleEntries.count) 篇").foregroundStyle(.tertiary)
+                Text(
+                    L10n.tr(
+                        "\(workspace.visibleEntries.count) 篇",
+                        "\(workspace.visibleEntries.count)"
+                    )
+                ).foregroundStyle(.tertiary)
             }
             .buttonStyle(.borderless)
             .font(.system(size: 11))
